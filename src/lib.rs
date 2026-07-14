@@ -6,9 +6,9 @@ use std::{collections::BTreeMap, time::Duration};
 
 use bevy::color::palettes::css;
 use bevy::{
+    camera::visibility::RenderLayers,
     diagnostic::{DiagnosticPath, DiagnosticsStore},
     prelude::*,
-    render::view::RenderLayers,
     text::LineBreak,
     time::common_conditions::on_timer,
 };
@@ -152,7 +152,7 @@ pub type FormatFn = fn(f64) -> String;
 #[derive(Resource, Reflect)]
 #[reflect(from_reflect = false)]
 pub struct ScreenDiagnostics {
-    text_alignment: JustifyText,
+    text_alignment: Justify,
     diagnostics: BTreeMap<String, DiagnosticsText>,
     layout_changed: bool,
 }
@@ -160,7 +160,7 @@ pub struct ScreenDiagnostics {
 impl Default for ScreenDiagnostics {
     fn default() -> Self {
         Self {
-            text_alignment: JustifyText::Left,
+            text_alignment: Justify::Left,
             diagnostics: Default::default(),
             layout_changed: Default::default(),
         }
@@ -299,7 +299,7 @@ impl ScreenDiagnostics {
     ///         .format(|v| format!("{:.0}", v));
     /// }
     /// ```
-    pub fn add<S>(&mut self, name: S, path: DiagnosticPath) -> DiagnosticsTextBuilder
+    pub fn add<S>(&mut self, name: S, path: DiagnosticPath) -> DiagnosticsTextBuilder<'_>
     where
         S: Into<String>,
     {
@@ -329,7 +329,7 @@ impl ScreenDiagnostics {
     /// Modify a [DiagnosticsText] by name.
     ///
     /// Uses the same syntax as [ScreenDiagnostics::add]
-    pub fn modify<S>(&mut self, name: S) -> DiagnosticsTextBuilder
+    pub fn modify<S>(&mut self, name: S) -> DiagnosticsTextBuilder<'_>
     where
         S: Into<String>,
     {
@@ -345,8 +345,8 @@ impl ScreenDiagnostics {
         self.diagnostics.remove(&name);
     }
 
-    /// Set the [JustifyText] and trigger a rebuild
-    pub fn set_alignment(&mut self, align: JustifyText) {
+    /// Set the [Justify] and trigger a rebuild
+    pub fn set_alignment(&mut self, align: Justify) {
         self.text_alignment = align;
         self.layout_changed = true;
     }
@@ -385,12 +385,12 @@ fn update_onscreen_diags_layout(
             commands.entity(text_layout.0).with_children(|c| {
                 c.spawn((
                     TextSpan::new("test_val"),
-                    TextFont::from_font(font.0.clone()).with_font_size(20.0),
+                    TextFont::from(font.0.clone()).with_font_size(20.0),
                     TextColor(text.colors.0),
                 ));
                 c.spawn((
                     TextSpan::new(text.get_name()),
-                    TextFont::from_font(font.0.clone()).with_font_size(20.0),
+                    TextFont::from(font.0.clone()).with_font_size(20.0),
                     TextColor(text.colors.1),
                 ));
             });

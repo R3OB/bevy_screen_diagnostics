@@ -42,7 +42,7 @@ pub struct ScreenEntityDiagnosticsPlugin;
 impl Plugin for ScreenEntityDiagnosticsPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<EntityCountDiagnosticsPlugin>() {
-            app.add_plugins(EntityCountDiagnosticsPlugin);
+            app.add_plugins(EntityCountDiagnosticsPlugin::default());
         }
         app.add_systems(Startup, setup_entity_diagnostics);
     }
